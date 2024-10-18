@@ -20,6 +20,7 @@ OPEN the Spring Boot Dashboard and select the "webtk" APP. Click the RUN Arrow b
 
 To test the application access it on port 8080 at localhost
 
--http://localhost:8080/actuator
--http://localhost:8080/display-csv
--http://localhost:8080/download-csv
+  - http://localhost:8080/actuator
+  - http://localhost:8080/display-csv
+  - http://localhost:8080/download-csv
+  - 
