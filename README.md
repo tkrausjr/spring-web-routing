@@ -54,7 +54,8 @@ tanzu space use
 tanzu app init
   # Follow the prompts. Use defaults to create an HTTPRoute
   # This ends up creating an HTTPRoute and Containerapp YAML files in the .tanzu/config folder.
-  # Now just make sure that the entrypoint in the .tanzu/config/httproute-<app-name>.yaml file is identical to the value you configured in the Spaces Domain Binding Advanced Configuration.
+  # Now just make sure that the entrypoint in the .tanzu/config/httproute-<app-name>.yaml file is identical to the value
+  # you configured in the Spaces Domain Binding Advanced Configuration.
 tanzu build config --containerapp-registry harbor.mbentley.net/tkraus/spring-api-csv
 tanzu app config build non-secret-env set BP_JVM_VERSION=17                            
     # This ends up updating our containerapp YAML - spring-api-csv.yml in the .tanzu/config folder. 
