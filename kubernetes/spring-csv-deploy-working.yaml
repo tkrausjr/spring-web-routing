@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+  name: spring-web-k8s-deploy
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app-name: spring-web-routing
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 10%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app-name: spring-web-routing
+    spec:
+      containers:
+      - env:
+        - name: JAVA_TOOL_OPTIONS
+          value: -Dmanagement.endpoint.health.probes.add-additional-paths=true -Dmanagement.endpoints.web.exposure.include=health,info
+            -Dmanagement.health.probes.enabled=true -Dmanagement.info.build.enabled=true
+            -Dmanagement.info.git.enabled=true -Dmanagement.info.java.enabled=true
+            -Dmanagement.info.os.enabled=true -Dmanagement.info.process.enabled=true
+            -Dmanagement.server.port=8081 -Dserver.port=8080 -Dserver.shutdown.grace-period=24s
+        image: harbor.mbentley.net/tkraus/app-spring-routing:latest
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /livez
+            port: 8080
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: main
+        ports:
+        - containerPort: 8080
+          name: main
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /readyz
+            port: 8080
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            memory: 1Gi
+          requests:
+            cpu: 300m
+            memory: 1Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        startupProbe:
+          failureThreshold: 120
+          httpGet:
+            path: /readyz
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 1
+          periodSeconds: 1
+          successThreshold: 1
+          timeoutSeconds: 1
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /tmp
+          name: tanzu-tmp
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      terminationGracePeriodSeconds: 300
+      volumes:
+      - emptyDir: {}
+        name: tanzu-tmp
+
